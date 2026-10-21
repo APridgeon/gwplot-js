@@ -1,0 +1,13 @@
+{
+  "name": "gwplot-js",
+  "version": "0.1.0",
+  "description": "gw, the genome browser, as a WebAssembly module for JavaScript: the browser counterpart of gwplot",
+  "type": "module",
+  "license": "MIT",
+  "repository": "github:APridgeon/gwplot-js",
+  "scripts": {
+    "build:deps": "./build_deps.sh",
+    "build": "./build.sh",
+    "test": "node tests/smoke.mjs out"
+  }
+}

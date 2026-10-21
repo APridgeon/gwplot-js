@@ -1,0 +1,38 @@
+# Builds gwplot-js and runs its smoke test, on every push. The dependencies (Skia, HTSlib,
+# xz) take most of the time; they're cached until gw's deps/wasm/build.sh or build_deps.sh
+# change.
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    container: docker.io/emscripten/emsdk:3.1.65
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build tools
+        run: apt-get update && apt-get install -y --no-install-recommends autoconf ninja-build
+
+      - name: Cache the dependencies
+        id: deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: deps-${{ hashFiles('gw/deps/wasm/build.sh', 'build_deps.sh') }}
+
+      - name: Build the dependencies
+        if: steps.deps.outputs.cache-hit != 'true'
+        run: git config --global --add safe.directory '*' && ./build_deps.sh gw deps
+
+      - name: Build
+        run: ./build.sh gw deps out
+
+      - name: Smoke test
+        run: node tests/smoke.mjs out
