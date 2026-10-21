@@ -41,6 +41,32 @@ podman run --rm -v "$PWD:/src:Z" -w /src docker.io/emscripten/emsdk:3.1.65 bash 
 | `gwplot.node.mjs` | the same for Node; pass it the browser's `.wasm` as `wasmBinary` |
 | `fs_bridge.mjs` | reading files from a web server |
 
+## Releases
+
+Pushing a version tag (`git tag v0.1.0 && git push origin v0.1.0`) publishes a GitHub release
+with:
+
+| file | |
+|---|---|
+| `gwplot-js-deps-<tag>.tar.gz` | the dependencies `build_deps.sh` builds (Skia, HTSlib, xz), so you needn't build Skia |
+| `gwplot-js-<tag>.tar.gz` | the module, as `build.sh` installs it: `manifest.json` and its version directory |
+| `SHA256SUMS` | checksums of both |
+
+To build the module from the prebuilt dependencies:
+
+```sh
+mkdir deps && tar -xzf gwplot-js-deps-v0.1.0.tar.gz -C deps --strip-components=1
+./build.sh <your gw> deps out
+```
+
+The dependencies follow gw's `deps/wasm/build.sh`, so they fit any gw whose `build.sh` is
+the one they were built from. That file's SHA-256 is `gw_deps_build_sh` in the bundle's
+`BUILD_INFO`:
+
+```sh
+grep gw_deps_build_sh deps/BUILD_INFO; sha256sum <your gw>/deps/wasm/build.sh
+```
+
 ## Using it
 
 Run it in a Web Worker: the file bridge's reads are synchronous, which browsers only

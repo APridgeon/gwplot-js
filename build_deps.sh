@@ -6,6 +6,7 @@
 #   PREFIX/skia_wasm/*.a      Skia (CanvasKit build, single-threaded), skcms, jpeg, png
 #   PREFIX/htslib/            HTSlib 1.21 headers and libhts.a (no curl: the browser fetches)
 #   PREFIX/lzma/liblzma.a     xz 5.2.5, which HTSlib needs
+#   PREFIX/BUILD_INFO         what they were built from (see the end of this script)
 #
 #   ./build_deps.sh [GW_ROOT] [PREFIX]      (defaults: the gw submodule, deps)
 #
@@ -75,4 +76,17 @@ cp -r "$WASM_DIR/skia/include" "$PREFIX/skia/"
 cp -r "$WASM_DIR/out/skia_wasm" "$PREFIX/"
 cp -r "$WASM_DIR/out/htslib/htslib" "$WASM_DIR/out/htslib/libhts.a" "$PREFIX/htslib/"
 cp "$WASM_DIR/xz-5.2.5/src/liblzma/.libs/liblzma.a" "$PREFIX/lzma/"
-echo "WebAssembly dependencies installed in $PREFIX"
+
+# What these were built from, so a prebuilt copy (a release's gwplot-js-deps tarball) can
+# be checked against the gw it's used with: gw_deps_build_sh must match the SHA-256 of
+# that gw's deps/wasm/build.sh.
+value() { grep -m1 -E "^$1=" "$WASM_DIR/build.sh" | cut -d= -f2 | tr -d '"'; }
+cat > "$PREFIX/BUILD_INFO" <<INFO
+gw_deps_build_sh=$(sha256sum "$WASM_DIR/build.sh" | cut -d' ' -f1)
+emscripten=$(value EMSCRIPTEN_TARGET)
+skia=$(value SKIA_BRANCH)
+htslib=$(value HTSLIB_VERSION)
+gwplot_js=$(git -C "$HERE" describe --tags --always --dirty 2>/dev/null || echo unknown)
+INFO
+echo "WebAssembly dependencies installed in $PREFIX:"
+cat "$PREFIX/BUILD_INFO"
