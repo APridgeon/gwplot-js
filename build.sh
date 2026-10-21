@@ -21,10 +21,14 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 GW_ROOT="$(cd "${1:-$HERE/gw}" && pwd)"
 DEPS="$(cd "${2:-$HERE/deps}" && pwd)"
-DEST="${3:-$HERE/out}"
+mkdir -p "${3:-$HERE/out}"
+DEST="$(cd "${3:-$HERE/out}" && pwd)"
+# absolute, before the build changes directory
+extras=()
+for extra in ${GWPLOT_JS_EXTRA_FILES:-}; do extras+=("$(cd "$(dirname "$extra")" && pwd)/$(basename "$extra")"); done
 if [ -n "${GWPLOT_JS_BUILD_DIR:-}" ]; then
-    OUT="$GWPLOT_JS_BUILD_DIR"
-    mkdir -p "$OUT"
+    mkdir -p "$GWPLOT_JS_BUILD_DIR"
+    OUT="$(cd "$GWPLOT_JS_BUILD_DIR" && pwd)"
 else
     OUT="$(mktemp -d)"
     trap 'rm -rf "$OUT"' EXIT
@@ -35,7 +39,7 @@ env -u CFLAGS -u CXXFLAGS -u CPPFLAGS -u LDFLAGS -u LDLIBS \
     emmake make -f "$HERE/Makefile" -j"${JOBS:-$(nproc)}" EMSCRIPTEN=1 DEPS="$DEPS" OUT="$OUT" ${GWPLOT_JS_MAKE_ARGS:-}
 
 files=("$OUT/gwplot.mjs" "$OUT/gwplot.wasm" "$OUT/fs_bridge.mjs" "$OUT/gwplot.node.mjs")
-for extra in ${GWPLOT_JS_EXTRA_FILES:-}; do files+=("$(cd "$(dirname "$extra")" && pwd)/$(basename "$extra")"); done
+files+=("${extras[@]}")
 version="$(cat "${files[@]}" | sha256sum | cut -c1-12)"
 mkdir -p "$DEST/$version"
 cp "${files[@]}" "$DEST/$version/"

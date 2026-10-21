@@ -20,6 +20,8 @@ set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 GW_ROOT="$(cd "${1:-$HERE/gw}" && pwd)"
 PREFIX="${2:-$HERE/deps}"
+mkdir -p "$PREFIX"
+PREFIX="$(cd "$PREFIX" && pwd)"  # absolute: some copies below run from inside Skia's tree
 WASM_DIR="$GW_ROOT/deps/wasm"
 STEP3='^# 3\. Build GW for WASM'
 

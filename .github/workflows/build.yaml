@@ -31,6 +31,14 @@ jobs:
         if: steps.deps.outputs.cache-hit != 'true'
         run: git config --global --add safe.directory '*' && ./build_deps.sh gw deps
 
+      # A failed configure says why only in its config.log
+      - name: Show the configure logs
+        if: failure()
+        run: |
+          for log in gw/deps/wasm/xz-*/config.log gw/deps/wasm/htslib_src/config.log; do
+            if [ -f "$log" ]; then echo "== $log"; tail -n 80 "$log"; fi
+          done
+
       - name: Build
         run: ./build.sh gw deps out
 
