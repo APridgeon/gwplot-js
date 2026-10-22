@@ -7,7 +7,8 @@
 #   DEPS     what build_deps.sh installed (default: deps)
 #   DEST     where to install (default: out), which then holds
 #              <version>/gwplot.mjs, gwplot.wasm, fs_bridge.mjs,
-#                        gwplot.node.mjs (the same module for Node)
+#                        gwplot.node.mjs (the same module for Node),
+#                        *.d.mts (their TypeScript declarations)
 #              manifest.json  {"version": "<version>", "module": "<version>/gwplot.mjs"}
 #
 # The version is a hash of the files, so a browser can cache them indefinitely: a new
@@ -39,6 +40,7 @@ env -u CFLAGS -u CXXFLAGS -u CPPFLAGS -u LDFLAGS -u LDLIBS \
     emmake make -f "$HERE/Makefile" -j"${JOBS:-$(nproc)}" EMSCRIPTEN=1 DEPS="$DEPS" OUT="$OUT" ${GWPLOT_JS_MAKE_ARGS:-}
 
 files=("$OUT/gwplot.mjs" "$OUT/gwplot.wasm" "$OUT/fs_bridge.mjs" "$OUT/gwplot.node.mjs")
+files+=("$OUT/gwplot.d.mts" "$OUT/gwplot.node.d.mts" "$OUT/fs_bridge.d.mts")
 files+=("${extras[@]}")
 version="$(cat "${files[@]}" | sha256sum | cut -c1-12)"
 mkdir -p "$DEST/$version"

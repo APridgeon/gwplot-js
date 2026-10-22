@@ -118,6 +118,22 @@ const tracks = plot.tracks()
 check(tracks.length === 1 && tracks[0].name.length > 0, `the annotation track is listed (${tracks[0]?.name})`)
 check(plot.pileupDepth() > 0, `the reads pile up ${plot.pileupDepth()} deep`)
 
+// The TypeScript declarations (written by hand) have the module's methods: the build's
+// copy, or the repo's for a build from before there were any.
+{
+  const installed = join(moduleDir, 'gwplot.d.mts')
+  const types = readFileSync(existsSync(installed) ? installed : join(here, '..', 'gwplot.d.mts'), 'utf8')
+  const block = /^export class Gw \{([\s\S]*?)^\}/m.exec(types)[1]
+  const embind = new Set(['constructor', 'delete', 'isDeleted'])
+  const declared = new Set([...block.matchAll(/^ {2}(\w+)\(/gm)].map((m) => m[1]).filter((n) => !embind.has(n)))
+  const bound = new Set(Object.getOwnPropertyNames(Module.Gw.prototype).filter((n) => !embind.has(n)))
+  const missing = [...bound].filter((n) => !declared.has(n))
+  const extra = [...declared].filter((n) => !bound.has(n))
+  check(missing.length === 0 && extra.length === 0,
+    `gwplot.d.mts declares Gw's ${bound.size} methods` +
+    (missing.length ? `; not declared: ${missing.join(', ')}` : '') + (extra.length ? `; not bound: ${extra.join(', ')}` : ''))
+}
+
 // Click down the reads until one is selected: its SAM record, then its mate (or '').
 let read = ''
 for (let y = 60; y < 240 && !read; y += 4) {

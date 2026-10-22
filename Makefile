@@ -60,9 +60,12 @@ MODULE_LDFLAGS := $(filter-out -sASYNCIFY=1 -sASYNCIFY_STACK_SIZE=% -sEXPORTED_R
 # glue the browser's .wasm (wasmBinary) to run exactly what the browser does.
 NODE_MODULE := $(OUT)/gwplot.node.mjs
 
-$(MODULE): $(GW_OBJECTS) $(WRAPPER) $(GWPLOT_JS)/Makefile $(GWPLOT_JS)/fs_bridge.mjs
+# With them, fs_bridge.mjs and the TypeScript declarations (written by hand: gwplot.d.mts)
+TYPES := $(addprefix $(GWPLOT_JS)/,gwplot.d.mts gwplot.node.d.mts fs_bridge.d.mts)
+
+$(MODULE): $(GW_OBJECTS) $(WRAPPER) $(GWPLOT_JS)/Makefile $(GWPLOT_JS)/fs_bridge.mjs $(TYPES)
 	$(CXX) $(filter-out -g,$(CXXFLAGS)) $(GW_OBJECTS) $(WRAPPER) $(MODULE_LDFLAGS) -sENVIRONMENT=worker $(LDLIBS) -o $@
-	cp $(GWPLOT_JS)/fs_bridge.mjs $(OUT)/
+	cp $(GWPLOT_JS)/fs_bridge.mjs $(TYPES) $(OUT)/
 
 $(NODE_MODULE): $(GW_OBJECTS) $(WRAPPER) $(GWPLOT_JS)/Makefile
 	$(CXX) $(filter-out -g,$(CXXFLAGS)) $(GW_OBJECTS) $(WRAPPER) $(MODULE_LDFLAGS) -sENVIRONMENT=node $(LDLIBS) -o $@

@@ -4,8 +4,9 @@
 #
 # Pushing a version tag (git tag v0.1.0 && git push origin v0.1.0) also publishes a
 # release: the dependencies (gwplot-js-deps-<tag>.tar.gz, for building gwplot-js without
-# building Skia), the module (gwplot-js-<tag>.tar.gz) and their SHA256SUMS. A tag build
-# always builds the dependencies afresh rather than from the cache.
+# building Skia), the module (gwplot-js-<tag>.tar.gz), the module as an npm package
+# (gwplot-js-<version>.tgz) and their SHA256SUMS. A tag build always builds the
+# dependencies afresh rather than from the cache.
 name: Build
 
 on:
@@ -55,6 +56,26 @@ jobs:
       - name: Smoke test
         run: node tests/smoke.mjs out
 
+      # On a tag, the tag's version (v0.1.0 -> 0.1.0); otherwise package.json's
+      - name: Pack for npm
+        run: |
+          version=""
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then version="${GITHUB_REF_NAME#v}"; fi
+          ./pack_npm.sh out "$version" release
+        shell: bash
+
+      # The smoke test again, on the package's own files
+      - name: Test the npm package
+        run: |
+          mkdir -p /tmp/npm-package
+          tar -xzf release/gwplot-js-*.tgz -C /tmp/npm-package
+          node tests/smoke.mjs /tmp/npm-package/package
+
+      - name: Check the TypeScript declarations
+        run: >-
+          npx --yes -p typescript@5 tsc --noEmit --strict --target es2022 --lib es2022,dom
+          --module nodenext --moduleResolution nodenext tests/types.mts
+
       - name: Package the release
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
@@ -62,7 +83,7 @@ jobs:
           mkdir -p release
           tar -czf "release/gwplot-js-deps-$tag.tar.gz" --transform "s,^deps,gwplot-js-deps-$tag," deps
           tar -czf "release/gwplot-js-$tag.tar.gz" --transform "s,^out,gwplot-js-$tag," out
-          (cd release && sha256sum *.tar.gz > SHA256SUMS)
+          (cd release && sha256sum *.tar.gz *.tgz > SHA256SUMS)
           {
             echo "Built with Emscripten, from gw's deps/wasm/build.sh (its SHA-256 is gw_deps_build_sh):"
             echo
@@ -84,4 +105,5 @@ jobs:
           body_path: release/NOTES.md
           files: |
             release/*.tar.gz
+            release/*.tgz
             release/SHA256SUMS

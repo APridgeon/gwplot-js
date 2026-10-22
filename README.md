@@ -40,6 +40,7 @@ podman run --rm -v "$PWD:/src:Z" -w /src docker.io/emscripten/emsdk:3.1.65 bash 
 | `gwplot.mjs` + `gwplot.wasm` | the module, for a browser (a Web Worker) |
 | `gwplot.node.mjs` | the same for Node; pass it the browser's `.wasm` as `wasmBinary` |
 | `fs_bridge.mjs` | reading files from a web server |
+| `*.d.mts` | TypeScript declarations for each, which editors also use for JavaScript |
 
 ## Releases
 
@@ -50,7 +51,8 @@ with:
 |---|---|
 | `gwplot-js-deps-<tag>.tar.gz` | the dependencies `build_deps.sh` builds (Skia, HTSlib, xz), so you needn't build Skia |
 | `gwplot-js-<tag>.tar.gz` | the module, as `build.sh` installs it: `manifest.json` and its version directory |
-| `SHA256SUMS` | checksums of both |
+| `gwplot-js-<version>.tgz` | the module as an npm package (`pack_npm.sh`): see [Installing with npm](#installing-with-npm) |
+| `SHA256SUMS` | checksums of all three |
 
 To build the module from the prebuilt dependencies:
 
@@ -94,6 +96,53 @@ postMessage(await createImageBitmap(image))  // to the page, for a canvas
 ```
 
 C++ exceptions reach JavaScript as a number; `Module.exceptionMessage(e)` says what they were.
+
+The module and `fs_bridge.mjs` come with TypeScript declarations (`gwplot.d.mts`,
+`fs_bridge.d.mts`, beside them), which TypeScript and editors pick up on their own: types for
+`Gw`'s methods, `tracks()` and `viewport()`, and the `Theme` names. They're written by hand;
+the smoke test checks they declare the methods `src/gwplot.cpp` binds, and
+`tests/types.mts` that they type-check.
+
+### Installing with npm
+
+Each release has the module as an npm package, which a project installs from the release:
+
+```sh
+npm install https://github.com/APridgeon/gwplot-js/releases/download/v0.1.0/gwplot-js-0.1.0.tgz
+```
+
+| import | |
+|---|---|
+| `gwplot-js` | `gwplot.mjs`, for a browser (a Web Worker) |
+| `gwplot-js/fs_bridge` | `fs_bridge.mjs` |
+| `gwplot-js/node` | `gwplot.node.mjs`, for Node: pass it `gwplot-js/gwplot.wasm` as `wasmBinary` |
+| `gwplot-js/gwplot.wasm` | the module's WebAssembly |
+
+```js
+// worker.js
+import createGwplot from 'gwplot-js'
+import { fetchWhole, mountUrl, writeFile } from 'gwplot-js/fs_bridge'
+
+// the page
+const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' })
+```
+
+The module finds its `.wasm` with `new URL('gwplot.wasm', import.meta.url)`, which Vite and
+webpack follow and bundle. Vite's dependency pre-bundling moves `gwplot.mjs` away from it,
+so leave the package out of that: `optimizeDeps: { exclude: ['gwplot-js'] }`.
+
+Under Node:
+
+```js
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import createGwplot from 'gwplot-js/node'
+
+const wasmBinary = readFileSync(fileURLToPath(import.meta.resolve('gwplot-js/gwplot.wasm')))
+const Module = await createGwplot({ wasmBinary })
+```
+
+`./pack_npm.sh [DEST] [VERSION] [PACK_DIR]` packs a build of your own the same way.
 
 ### `Gw`
 
