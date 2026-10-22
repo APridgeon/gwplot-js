@@ -11,8 +11,8 @@
 #   ./build_deps.sh [GW_ROOT] [PREFIX]      (defaults: the gw submodule, deps)
 #
 # It runs gw's own deps/wasm/build.sh, so the versions and flags stay gw's, but stops it
-# before its last step (building gw's demo page): gwplot-js builds its own module from
-# gw's sources (Makefile), and keeping gw's sources out of this step means changing them
+# before its last step (building gw's demo page): build.sh builds gw's headless module
+# from gw's sources, and keeping gw's sources out of this step means changing them
 # needn't rebuild Skia (e.g. in a container layer). Needs an emsdk with Emscripten 3.1.65
 # (EMSDK set), plus git, python3, curl, autoconf and bzip2. The Skia sources it fetches
 # are large (~10 GB).

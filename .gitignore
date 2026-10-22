@@ -1,3 +1,8 @@
 # build.sh / build_deps.sh output
 out/
 deps/
+
+# example/: its npm install, build, and a locally packed gwplot-js
+example/node_modules/
+example/dist/
+example/*.tgz

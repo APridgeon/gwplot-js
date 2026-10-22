@@ -2,9 +2,9 @@ MIT License
 
 Copyright (c) 2026 gwplot-js contributors
 
-Parts of src/gwplot.cpp are ported from gwplot (https://github.com/kcleal/gwplot),
-Copyright (c) 2024 Kez Cleal, and the module is built from gw
-(https://github.com/kcleal/gw), Copyright (c) 2022 Kez Cleal; both under the MIT License.
+The module is built from gw (https://github.com/kcleal/gw), Copyright (c) 2022 Kez
+Cleal, whose JavaScript API is ported from gwplot (https://github.com/kcleal/gwplot),
+Copyright (c) 2024 Kez Cleal; both under the MIT License.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -37,17 +37,6 @@ for file in gwplot.d.mts gwplot.node.d.mts fs_bridge.d.mts; do
 done
 cp "$HERE/README.md" "$HERE/LICENSE" "$STAGE/"
 
-# gw's sources (src/wasm_stubs.cpp) import gw's own page's online-files.mjs, to open a
-# reference given as a URL. gwplot-js never gets there (it has no Asyncify), but bundlers
-# resolve every import they see, so it needs a file by that name to build an app.
-cat > "$STAGE/online-files.mjs" <<'EOF'
-// A stand-in for gw's own page's online-files.mjs, which gwplot.mjs names but never loads,
-// so that bundlers can resolve it. For a reference on a web server, use fs_bridge's mountUrl.
-export function prepareOnline() {
-  throw new Error("gwplot-js doesn't open a reference by URL: mount it with fs_bridge's mountUrl")
-}
-EOF
-
 # No "type": the modules are .mjs already
 VERSION="$VERSION" node -e '
 const root = require(process.argv[1])

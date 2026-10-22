@@ -30,9 +30,9 @@ podman run --rm -v "$PWD:/src:Z" -w /src docker.io/emscripten/emsdk:3.1.65 bash 
   - Skia's sources are about 10 GB.
   - `skia.googlesource.com` rate-limits anonymous clones, so the script retries.
   - It skips the few Skia dependencies that CanvasKit doesn't use and whose mirrors come back empty.
-- **`build.sh [GW_ROOT] [DEPS] [DEST]`** compiles gw's sources with gw's own browser flags (`deps/wasm/flags.mk`) plus `-O3 -msimd128`, and links `src/gwplot.cpp` in place of gw's windowed `main.cpp`.
+- **`build.sh [GW_ROOT] [DEPS] [DEST]`** builds gw's headless module with gw's own `make headless`, which links gw's JavaScript API (`src/headless/gw_api.cpp`) in place of its windowed `main.cpp`. It asks for `-O3 -msimd128` (`WASM_OPT`), which draws about 15% faster than gw's default `-O2`, and adds this repo's file bridge and TypeScript declarations.
   - Output goes to `DEST/<version>/` with a `manifest.json` that names the version. The version is a hash of the files, so they can be cached indefinitely.
-  - `GW_ROOT` can be any gw checkout: an app that also uses gwplot can build against gwplot's own gw, so both draw from the same gw.
+  - `GW_ROOT` can be any gw checkout with the headless build: an app that also uses gwplot can build against gwplot's own gw, so both draw from the same gw.
   - `GWPLOT_JS_EXTRA_FILES` adds an app's own files to the version directory and its hash.
 
 | file | |
@@ -100,7 +100,7 @@ C++ exceptions reach JavaScript as a number; `Module.exceptionMessage(e)` says w
 The module and `fs_bridge.mjs` come with TypeScript declarations (`gwplot.d.mts`,
 `fs_bridge.d.mts`, beside them), which TypeScript and editors pick up on their own: types for
 `Gw`'s methods, `tracks()` and `viewport()`, and the `Theme` names. They're written by hand;
-the smoke test checks they declare the methods `src/gwplot.cpp` binds, and
+the smoke test checks they declare the methods gw's `src/headless/gw_api.cpp` binds, and
 `tests/types.mts` that they type-check.
 
 ### Installing with npm
