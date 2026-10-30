@@ -1,7 +1,6 @@
 // gwplot.d.mts: TypeScript declarations for gwplot.mjs (and gwplot.node.mjs), gw's
-// headless module. Written by hand from the EMSCRIPTEN_BINDINGS in gw's
-// src/headless/gw_api.cpp; tests/smoke.mjs checks that Gw's methods here are the ones the
-// module has.
+// headless module. Written by hand from the EMSCRIPTEN_BINDINGS in src/gw_api.cpp;
+// tests/smoke.mjs checks that Gw's methods here are the ones the module has.
 
 /** Options for createGwplot (Emscripten's Module settings), of those that apply here. */
 export interface GwplotOptions {
