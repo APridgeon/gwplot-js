@@ -39,6 +39,11 @@ configured.delete()
 
 const node: GwplotModule = await createNode({ wasmBinary: new Uint8Array(0) })
 
+// Pointer input beyond press and release
+gw.mouseEvent(10, 20, Module.MOUSE_BUTTON_RIGHT, Module.RELEASE, Module.MOD_SHIFT | Module.MOD_CONTROL)
+gw.mouseMove(30, 20)
+gw.scroll(0, -1)
+
 // @ts-expect-error not a theme
 gw.setTheme('blue')
 // @ts-expect-error missing the height

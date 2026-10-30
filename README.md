@@ -151,7 +151,8 @@ const Module = await createGwplot({ wasmBinary })
 | `new Gw(reference, width, height[, iniPath])` | `Gw(reference, ini=…, canvas_width=, canvas_height=)`; without an ini, gw's defaults |
 | `addBam(path)`, `addTrack(path)`, `addRegion(chrom, start, end)`, `clearRegions()` | `add_bam`, `add_track`, `add_region`, `clear_regions` |
 | `applyCommand(command)` | `apply_command` (`expand-tracks on\|off` sets rather than toggles) |
-| `keyPress(key, scancode, action, mods)`, `mouseEvent(x, y, button, action)` | `key_press`, `mouse_event`; constants `Module.KEY_*`, `PRESS`, `RELEASE`, `MOUSE_BUTTON_LEFT` |
+| `keyPress(key, scancode, action, mods)`, `mouseEvent(x, y, button, action[, mods])` | `key_press`, `mouse_event`; constants `Module.KEY_*`, `PRESS`, `RELEASE`, `MOUSE_BUTTON_LEFT`/`RIGHT`/`MIDDLE`, `MOD_SHIFT`/`CONTROL`/`ALT`/`SUPER` |
+| `mouseMove(x, y)`, `scroll(dx, dy)` | the pointer moving (after a left press, a drag: pans, or moves the scale bar or a track divider) and wheel steps (zoom, pan), as in gw's window |
 | `addMarker(chrom, pos)`, `removeMarker(chrom, pos)`, `clearMarkers()` | `add_marker`, `remove_marker`, `clear_markers` |
 | `selectedAlign()`, `selectedIntron()`, `selectedFeature()`, `clearSelected…()`, `selectMate()` | `selected_align`, …, `select_mate` |
 | `setCanvasSize(w, h)`, `width()`, `height()`, `vscroll()`, `setVscroll(n)`, `pileupDepth()` | `set_canvas_size`, `canvas_size`, `vscroll`, `set_vscroll`, `pileup_depth` |

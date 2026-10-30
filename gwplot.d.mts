@@ -94,8 +94,15 @@ export class Gw {
   applyCommand(command: string): void
   /** A key event; key is one of Module.KEY_*, action Module.PRESS or Module.RELEASE. */
   keyPress(key: number, scancode: number, action: number, mods: number): void
-  /** A mouse event at (x, y) in frame-buffer pixels; button Module.MOUSE_BUTTON_LEFT. */
-  mouseEvent(x: number, y: number, button: number, action: number): void
+  /**
+   * A button press or release at (x, y) in frame-buffer pixels: button Module.MOUSE_BUTTON_*,
+   * action Module.PRESS or Module.RELEASE, mods Module.MOD_* bits.
+   */
+  mouseEvent(x: number, y: number, button: number, action: number, mods?: number): void
+  /** The pointer moved to (x, y): after a left press, a drag (pans, or moves the scale bar or a track divider). */
+  mouseMove(x: number, y: number): void
+  /** A wheel or trackpad scroll, in steps: gw zooms (dy) or pans (dx). */
+  scroll(dx: number, dy: number): void
 
   // --- Markers
 
@@ -204,6 +211,12 @@ export interface GwplotModule {
   readonly PRESS: number
   readonly RELEASE: number
   readonly MOUSE_BUTTON_LEFT: number
+  readonly MOUSE_BUTTON_RIGHT: number
+  readonly MOUSE_BUTTON_MIDDLE: number
+  readonly MOD_SHIFT: number
+  readonly MOD_CONTROL: number
+  readonly MOD_ALT: number
+  readonly MOD_SUPER: number
   /** Track.kind of an intron track */
   readonly INTRON_TRACK_KIND: number
 }
