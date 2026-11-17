@@ -329,8 +329,8 @@ public:
 
     std::string theme() const { return plot->opts.theme.name; }
     void setTheme(const std::string& name) {
-        if (name != "slate" && name != "dark" && name != "igv") {
-            throw std::invalid_argument("Theme must be one of slate, dark, igv");
+        if (!Themes::isBaseTheme(name)) {  // gw's built-in themes (dark, igv, slate, tide, frost)
+            throw std::invalid_argument("Theme must be one of dark, igv, slate, tide, frost");
         }
         std::string theme = name;
         plot->opts.setTheme(theme);

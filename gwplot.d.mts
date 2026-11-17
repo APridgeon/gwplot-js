@@ -39,7 +39,8 @@ export interface EmscriptenFSStream {
 }
 
 /** gw's colour themes. */
-export type Theme = 'slate' | 'dark' | 'igv'
+/** gw's built-in themes; igv and frost are the light ones. */
+export type Theme = 'dark' | 'igv' | 'slate' | 'tide' | 'frost'
 
 /** A loaded annotation track (gwplot's get_tracks). */
 export interface Track {
