@@ -254,11 +254,10 @@ public:
 
     // --- Layout -----------------------------------------------------------------------
 
+    // As gw resizes for a window (GwPlot::resizeCanvas): the layout and caches are redone,
+    // and filters, selections and scroll are kept. The next draw re-reads the alignments.
     void setCanvasSize(int width, int height) {
-        plot->opts.dimensions.x = width;
-        plot->opts.dimensions.y = height;
-        plot->setImageSize(width, height);
-        if (plot->makeRasterSurface() == 0) {
+        if (plot->resizeCanvas(width, height) == 0) {
             throw std::runtime_error("could not create a " + std::to_string(width) + "x" +
                                      std::to_string(height) + " raster surface");
         }
