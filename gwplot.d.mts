@@ -123,6 +123,8 @@ export class Gw {
 
   // --- Layout
 
+  /** Resize the canvas as gw does for a window: the layout and caches are redone; filters,
+   *  the selection and the scroll position are kept. The next draw re-reads the reads. */
   setCanvasSize(width: number, height: number): void
   width(): number
   height(): number
